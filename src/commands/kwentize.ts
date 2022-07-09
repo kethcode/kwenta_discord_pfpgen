@@ -63,10 +63,13 @@ async function removeFromImgUrl(url: string, id: string) {
   } catch (e) {
     //   const errors: Array<RemoveBgError> = e;
     //   console.log(JSON.stringify(errors));
+    console.log(e);
 	console.log("Error with remove.bg.  Using raw image.");
 
+	console.log(url.replace("https", "http"))
+
     const file = createWriteStream(outputFile);
-    const request = http.get(url.replace('https', 'http'), function (response) {
+    const request = http.get(url.replace("https", "http"), function (response) {
       response.pipe(file);
 
       // after download completed close filestream
@@ -74,7 +77,9 @@ async function removeFromImgUrl(url: string, id: string) {
         file.close();
         console.log("Download Completed");
       });
-    });
+    }).on('error', function(err) {
+		console.log(err);
+	});
 
     // console.log(e);
   }
