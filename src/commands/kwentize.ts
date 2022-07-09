@@ -60,31 +60,38 @@ async function removeFromImgUrl(url: string, id: string) {
     // console.log(
     //   `Rate limit: ${result.rateLimit}, remaining: ${result.rateLimitRemaining}, reset: ${result.rateLimitReset}, retryAfter: ${result.retryAfter}`
     // );
-	return outputFile;
   } catch (e) {
     //   const errors: Array<RemoveBgError> = e;
     //   console.log(JSON.stringify(errors));
     console.log(e);
-	console.log("Error with remove.bg.  Using raw image.");
+    console.log("Error with remove.bg.  Using raw image.");
 
-	console.log(url.replace("https", "http"))
+    console.log(url.replace("https", "http"));
 
     const file = createWriteStream(outputFile);
-    const request = http.get(url.replace("https", "http"), function (response) {
-      response.pipe(file);
+    const request = new Promise(function (resolve, reject) {
+      http
+        .get(url.replace("https", "http"), function (response) {
+          response.pipe(file);
 
-      // after download completed close filestream
-      file.on("finish", () => {
-        file.close();
-        console.log("Download Completed");
-		return outputFile;
-      });
-    }).on('error', function(err) {
-		console.log(err);
-	});
+          // after download completed close filestream
+          file.on("finish", () => {
+            file.close();
+            console.log("Download Completed");
+          });
+        })
+        .on("error", function (err) {
+          console.log(err);
+        });
+    });
 
+	(async function() {
+		await request;
+	})
     // console.log(e);
   }
+
+  return outputFile;
 }
 
 export const kwentize: Command = {
