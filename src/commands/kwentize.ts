@@ -39,6 +39,17 @@ const height = 800;
 
 let limitUses = new Map<string, number>();
 
+// var download = async function(url, dest, cb) {
+//   var file = createWriteStream(dest);
+//   http.get(url, function(response) {
+//     response.pipe(file);
+//     file.on('finish', function() {
+//       file.close(cb);
+//     });
+//   });
+// }
+
+
 async function removeFromImgUrl(url: string, id: string) {
   const outputFile = `${__dirname}/../images/${id}.png`;
   try {
@@ -66,28 +77,31 @@ async function removeFromImgUrl(url: string, id: string) {
     console.log(e);
     console.log("Error with remove.bg.  Using raw image.");
 
-    const file = createWriteStream(outputFile);
-    const request = new Promise(function (resolve, reject) {
-      http
-        .get(url.replace("https", "http"), function (response) {
-          response.pipe(file);
+	// await download(url.replace("https", "http"), outputFile);
 
-          // after download completed close filestream
-          file.on("finish", () => {
-            file.close();
-            console.log("Download Completed");
-			resolve("Download Completed");
-          });
-        })
-        .on("error", function (err) {
-          console.log(err);
-		  reject(err);
-        });
-    });
 
-	(async function() {
-		await request;
-	}());
+    // const file = createWriteStream(outputFile);
+    // const request = new Promise(function (resolve, reject) {
+    //   http
+    //     .get(url.replace("https", "http"), function (response) {
+    //       response.pipe(file);
+
+    //       // after download completed close filestream
+    //       file.on("finish", () => {
+    //         file.close(cb);
+    //         console.log("Download Completed");
+	// 		resolve("Download Completed");
+    //       });
+    //     })
+    //     .on("error", function (err) {
+    //       console.log(err);
+	// 	  reject(err);
+    //     });
+    // });
+
+	// (async function() {
+	// 	await request;
+	// }());
 
     // console.log(e);
   }
