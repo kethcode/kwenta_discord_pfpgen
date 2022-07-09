@@ -16,7 +16,7 @@ import { createCanvas, Image } from "@napi-rs/canvas";
 
 import { readFile, unlink } from "fs/promises";
 
-import http from "http";
+import https from "http";
 import { createWriteStream } from "fs";
 
 const path = require("path");
@@ -66,7 +66,7 @@ async function removeFromImgUrl(url: string, id: string) {
 	console.log("Error with remove.bg.  Using raw image.");
 
     const file = createWriteStream(outputFile);
-    const request = http.get(url, function (response) {
+    const request = https.get(url, function (response) {
       response.pipe(file);
 
       // after download completed close filestream
