@@ -66,8 +66,6 @@ async function removeFromImgUrl(url: string, id: string) {
     console.log(e);
     console.log("Error with remove.bg.  Using raw image.");
 
-    console.log(url.replace("https", "http"));
-
     const file = createWriteStream(outputFile);
     const request = new Promise(function (resolve, reject) {
       http
@@ -78,19 +76,22 @@ async function removeFromImgUrl(url: string, id: string) {
           file.on("finish", () => {
             file.close();
             console.log("Download Completed");
+			resolve("Download Completed");
           });
         })
         .on("error", function (err) {
           console.log(err);
+		  reject(err);
         });
     });
 
 	(async function() {
 		await request;
-	})
+	}());
+
     // console.log(e);
   }
-
+//   console.log(outputFile);
   return outputFile;
 }
 
@@ -150,6 +151,7 @@ export const kwentize: Command = {
         avatarURL,
         interaction.user.id
       );
+	  console.log("cleanedAvatarPath: " + cleanedAvatarPath);
 
       // Draw the Cleaned Avatar
       const avatar = await readFile(cleanedAvatarPath);
