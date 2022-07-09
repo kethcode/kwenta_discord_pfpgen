@@ -60,6 +60,7 @@ async function removeFromImgUrl(url: string, id: string) {
     // console.log(
     //   `Rate limit: ${result.rateLimit}, remaining: ${result.rateLimitRemaining}, reset: ${result.rateLimitReset}, retryAfter: ${result.retryAfter}`
     // );
+	return outputFile;
   } catch (e) {
     //   const errors: Array<RemoveBgError> = e;
     //   console.log(JSON.stringify(errors));
@@ -76,6 +77,7 @@ async function removeFromImgUrl(url: string, id: string) {
       file.on("finish", () => {
         file.close();
         console.log("Download Completed");
+		return outputFile;
       });
     }).on('error', function(err) {
 		console.log(err);
@@ -83,8 +85,6 @@ async function removeFromImgUrl(url: string, id: string) {
 
     // console.log(e);
   }
-
-  return outputFile;
 }
 
 export const kwentize: Command = {
