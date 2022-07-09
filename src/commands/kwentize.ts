@@ -15,7 +15,9 @@ import { RemoveBgError, removeBackgroundFromImageUrl } from "remove.bg";
 import { createCanvas, Image } from "@napi-rs/canvas";
 
 import { readFile, unlink } from "fs/promises";
-import { userInfo } from "os";
+
+import http from "http";
+import { createWriteStream } from "fs";
 
 const path = require("path");
 
@@ -38,7 +40,6 @@ const height = 800;
 let limitUses = new Map<string, number>();
 
 async function removeFromImgUrl(url: string, id: string) {
-
   const outputFile = `${__dirname}/../images/${id}.png`;
   try {
     const result = await removeBackgroundFromImageUrl({
@@ -50,12 +51,11 @@ async function removeFromImgUrl(url: string, id: string) {
       outputFile,
     });
 
-
     console.log(`${result.creditsCharged} credit(s) charged for this image`);
     console.log(
       `Result width x height: ${result.resultWidth} x ${result.resultHeight}, type: ${result.detectedType}`
     );
-	console.log(`File saved to ${outputFile}`);
+    console.log(`File saved to ${outputFile}`);
     // console.log(result.base64img.substring(0, 40) + "..");
     // console.log(
     //   `Rate limit: ${result.rateLimit}, remaining: ${result.rateLimitRemaining}, reset: ${result.rateLimitReset}, retryAfter: ${result.retryAfter}`
@@ -63,8 +63,22 @@ async function removeFromImgUrl(url: string, id: string) {
   } catch (e) {
     //   const errors: Array<RemoveBgError> = e;
     //   console.log(JSON.stringify(errors));
-    console.log(e);
+	console.log("Error with remove.bg.  Using raw image.");
+
+    const file = createWriteStream(outputFile);
+    const request = http.get(url, function (response) {
+      response.pipe(file);
+
+      // after download completed close filestream
+      file.on("finish", () => {
+        file.close();
+        console.log("Download Completed");
+      });
+    });
+
+    // console.log(e);
   }
+
   return outputFile;
 }
 
@@ -73,7 +87,6 @@ export const kwentize: Command = {
   description: "Generates a Kwenta-style PFP from your Discord Avatar",
   type: "CHAT_INPUT",
   run: async (client: Client, interaction: BaseCommandInteraction) => {
-
     try {
       let uses: number = 0;
       if (limitUses.has(interaction.user.id)) {
@@ -120,7 +133,7 @@ export const kwentize: Command = {
 
       // Get the Avatar and Remove It's background
       const avatarURL = interaction.user.avatarURL({ format: "png" }) as string;
-    //   console.log(avatarURL);
+      //   console.log(avatarURL);
       const cleanedAvatarPath = await removeFromImgUrl(
         avatarURL,
         interaction.user.id
@@ -158,8 +171,7 @@ export const kwentize: Command = {
         files: [attachment],
       });
 
-	  await unlink(cleanedAvatarPath);
-
+      await unlink(cleanedAvatarPath);
     } catch (e) {
       console.log(e);
     }
